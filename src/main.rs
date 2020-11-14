@@ -3,8 +3,9 @@ use chess_engine::engines::simple_engine::find_move;
 use chess_engine::util::print_board;
 use std::io;
 use std::io::Write;
+use std::time::Instant;
 
-const DEPTH: u32 = 4;
+const DEPTH: u8 = 4;
 
 fn main() {
     let mut board = Board::default();
@@ -31,11 +32,24 @@ fn main() {
 
             board = board.make_move_new(chosen_move);
         } else {
+            let start = Instant::now();
             let chosen_move = find_move(&board, DEPTH);
+            let duration = start.elapsed();
+            println!("Chosen move: {}\nTime elapsed: {:?}", chosen_move, duration);
             board = board.make_move_new(chosen_move);
         }
     }
     print_board(&board);
 
-    println!("The result is {:#?}!", board.status())
+    let status = board.status();
+    let result_string: &str;
+    if status == BoardStatus::Stalemate {
+        result_string = "Stalemate";
+    } else {
+        result_string = match board.side_to_move() {
+            Color::White => "Checkmate - Black Won",
+            Color::Black => "Checkmate - White Won",
+        };
+    }
+    println!("Game Over: {}", result_string);
 }

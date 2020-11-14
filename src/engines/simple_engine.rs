@@ -1,14 +1,15 @@
-use chess::{Board, ChessMove, Color, MoveGen, Piece};
+use chess::{Board, ChessMove, Color, MoveGen, Piece, EMPTY};
 
-pub fn find_move(board: &Board, depth: u32) -> ChessMove {
+pub fn find_move(board: &Board, depth: u8) -> ChessMove {
     let mut movegen = MoveGen::new_legal(board);
     let mut best_move: Option<ChessMove> = None;
     let mut best_move_score = -20_000;
     let mut resulting_board = Board::default();
     for cmove in &mut movegen {
         board.make_move(cmove, &mut resulting_board);
-        let score = -nega_max(&resulting_board, depth - 1);
-        println!("{} {}", cmove, score);
+        // let score = -nega_max(&resulting_board, depth - 1);
+        let score = -alpha_beta_nega(&resulting_board, depth - 1, -20_000, 20_000);
+        //println!("{} {}", cmove, score);
         if score > best_move_score {
             best_move = Some(cmove);
             best_move_score = score;
@@ -16,25 +17,156 @@ pub fn find_move(board: &Board, depth: u32) -> ChessMove {
     }
     return best_move.unwrap();
 }
-fn nega_max(board: &Board, depth: u32) -> i32 {
+
+/// Recursivley search the move-tree using a min-max strategy, returning an
+/// evaluation score for the given board state.
+///
+/// See https://www.chessprogramming.org/Negamax
+///
+// fn nega_max(board: &Board, depth: u8) -> i32 {
+//     if depth == 0 {
+//         return evaluate_board(&board); // + MoveGen::new_legal(board).len() as i32;
+//     } else {
+//         let mut movegen = MoveGen::new_legal(board);
+//         let mut best_move_score = -20_000;
+//         let mut resulting_board = Board::default();
+//         for cmove in &mut movegen {
+//             board.make_move(cmove, &mut resulting_board);
+//             let score = -nega_max(&resulting_board, depth - 1);
+//             if score > best_move_score {
+//                 best_move_score = score;
+//             }
+//         }
+//         return best_move_score;
+//     }
+// }
+
+/// Recursivley search the move-tree using a min-max strategy with alpha-beta
+/// pruning employed, returning an evaluation score for the given board state.
+///
+/// As a simple sorting of the legal moves, capturing moves are iterated first.
+/// 
+/// See https://www.chessprogramming.org/Alpha-Beta#Negamax_Framework
+///
+fn alpha_beta_nega(board: &Board, depth: u8, alpha: i32, beta: i32) -> i32 {
     if depth == 0 {
         return evaluate_board(&board);
     } else {
         let mut movegen = MoveGen::new_legal(board);
-        let mut best_move_score = -20_000;
+        let mut new_alpha = alpha;
         let mut resulting_board = Board::default();
+        let targets = board.color_combined(!board.side_to_move());
+
+        movegen.set_iterator_mask(*targets);
         for cmove in &mut movegen {
             board.make_move(cmove, &mut resulting_board);
-            let score = -nega_max(&resulting_board, depth - 1);
-            if score > best_move_score {
-                best_move_score = score;
+            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha);
+            if score >= beta {
+                return beta;
+            }
+            if score > alpha {
+                new_alpha = score;
             }
         }
-        return best_move_score;
+        movegen.set_iterator_mask(!EMPTY);
+        for cmove in &mut movegen {
+            board.make_move(cmove, &mut resulting_board);
+            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha);
+            if score >= beta {
+                return beta;
+            }
+            if score > alpha {
+                new_alpha = score;
+            }
+        }
+        return new_alpha;
     }
 }
-/// Evaluate the board as seen from the perspective of the player who's side it is to move.
-/// See https://www.chessprogramming.org/Simplified_Evaluation_Function
+
+// const black_pawn_square : [i32; 64] =
+//    [ 0,  0,  0,  0,  0,  0,  0,  0,
+//     50, 50, 50, 50, 50, 50, 50, 50,
+//     10, 10, 20, 30, 30, 20, 10, 10,
+//      5,  5, 10, 25, 25, 10,  5,  5,
+//      0,  0,  0, 20, 20,  0,  0,  0,
+//      5, -5,-10,  0,  0,-10, -5,  5,
+//      5, 10, 10,-20,-20, 10, 10,  5,
+//      0,  0,  0,  0,  0,  0,  0,  0,];
+
+// const white_pawn_square : [i32; 64] =
+//    [ 0,  0,  0,  0,  0,  0,  0,  0,
+//      5, 10, 10,-20,-20, 10, 10,  5,
+//      5, -5,-10,  0,  0,-10, -5,  5,
+//      0,  0,  0, 20, 20,  0,  0,  0,
+//      5,  5, 10, 25, 25, 10,  5,  5,
+//     10, 10, 20, 30, 30, 20, 10, 10,
+//     50, 50, 50, 50, 50, 50, 50, 50,
+//      0,  0,  0,  0,  0,  0,  0,  0,];
+
+// const black_knight_square : [i32; 64] =
+//    [-50,-40,-30,-30,-30,-30,-40,-50,
+//     -40,-20,  0,  0,  0,  0,-20,-40,
+//     -30,  0, 10, 15, 15, 10,  0,-30,
+//     -30,  5, 15, 20, 20, 15,  5,-30,
+//     -30,  0, 15, 20, 20, 15,  0,-30,
+//     -30,  5, 10, 15, 15, 10,  5,-30,
+//     -40,-20,  0,  5,  5,  0,-20,-40,
+//     -50,-40,-30,-30,-30,-30,-40,-50,];
+
+// const white_knight_square : [i32; 64] =
+//     [-50,-40,-30,-30,-30,-30,-40,-50,
+//      -40,-20,  0,  5,  5,  0,-20,-40,
+//      -30,  5, 10, 15, 15, 10,  5,-30,
+//      -30,  0, 15, 20, 20, 15,  0,-30,
+//      -30,  5, 15, 20, 20, 15,  5,-30,
+//      -30,  0, 10, 15, 15, 10,  0,-30,
+//      -40,-20,  0,  0,  0,  0,-20,-40,
+//      -50,-40,-30,-30,-30,-30,-40,-50,] ;
+
+// const black_bishop_square : [i32; 64] =
+//    [-20,-10,-10,-10,-10,-10,-10,-20,
+//     -10,  0,  0,  0,  0,  0,  0,-10,
+//     -10,  0,  5, 10, 10,  5,  0,-10,
+//     -10,  5,  5, 10, 10,  5,  5,-10,
+//     -10,  0, 10, 10, 10, 10,  0,-10,
+//     -10, 10, 10, 10, 10, 10, 10,-10,
+//     -10,  5,  0,  0,  0,  0,  5,-10,
+//     -20,-10,-10,-10,-10,-10,-10,-20,];
+
+// const white_bishop_square : [i32; 64] =
+//     [-20,-10,-10,-10,-10,-10,-10,-20,
+//      -10,  5,  0,  0,  0,  0,  5,-10,
+//      -10, 10, 10, 10, 10, 10, 10,-10,
+//      -10,  0, 10, 10, 10, 10,  0,-10,
+//      -10,  5,  5, 10, 10,  5,  5,-10,
+//      -10,  0,  5, 10, 10,  5,  0,-10,
+//      -10,  0,  0,  0,  0,  0,  0,-10,
+//      -20,-10,-10,-10,-10,-10,-10,-20,];
+
+// const black_rook_square : [i32; 64] =
+//    [ 0,  0,  0,  0,  0,  0,  0,  0,
+//      5, 10, 10, 10, 10, 10, 10,  5,
+//     -5,  0,  0,  0,  0,  0,  0, -5,
+//     -5,  0,  0,  0,  0,  0,  0, -5,
+//     -5,  0,  0,  0,  0,  0,  0, -5,
+//     -5,  0,  0,  0,  0,  0,  0, -5,
+//     -5,  0,  0,  0,  0,  0,  0, -5,
+//      0,  0,  0,  5,  5,  0,  0,  0,];
+
+// const white_rook_square : [i32; 64] =
+//     [ 0,  0,  0,  5,  5,  0,  0,  0,
+//      -5,  0,  0,  0,  0,  0,  0, -5,
+//      -5,  0,  0,  0,  0,  0,  0, -5,
+//      -5,  0,  0,  0,  0,  0,  0, -5,
+//      -5,  0,  0,  0,  0,  0,  0, -5,
+//      -5,  0,  0,  0,  0,  0,  0, -5,
+//       5, 10, 10, 10, 10, 10, 10,  5,
+//       0,  0,  0,  0,  0,  0,  0,  0,];
+
+/// Evaluate the board as seen from the perspective of the player who's side
+/// it is to move.
+///
+/// See https://www.chessprogramming.org/Simplified_Evaluation_Function#Piece_Values
 ///
 fn evaluate_board(board: &Board) -> i32 {
     let side: i32 = match board.side_to_move() {
