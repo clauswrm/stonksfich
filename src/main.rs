@@ -5,7 +5,7 @@ use stonksfich::util::print::print_board;
 
 use std::time::Instant;
 
-const DEPTH: u8 = 6;
+const DEPTH: u8 = 5;
 
 fn main() {
     let bot = Color::Black;
