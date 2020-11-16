@@ -1,6 +1,18 @@
-use chess::{Board, ChessMove, Color, MoveGen, Piece, EMPTY};
+use chess::{Board, CacheTable, ChessMove, Color, MoveGen, Piece, EMPTY};
 
-pub fn find_move(board: &Board, depth: u8) -> ChessMove {
+#[derive(Eq, PartialEq, PartialOrd, Ord, Copy, Clone)]
+pub struct TranspositionTableEntry {
+    pub score: i32,
+    pub best_move: ChessMove,
+    pub zobrist_key: u32,
+    pub depth: u8,
+}
+
+pub fn find_move(
+    board: &Board,
+    depth: u8,
+    tt: &mut CacheTable<TranspositionTableEntry>,
+) -> ChessMove {
     let mut movegen = MoveGen::new_legal(board);
     let mut best_move: Option<ChessMove> = None;
     let mut best_move_score = -20_000;
@@ -8,7 +20,7 @@ pub fn find_move(board: &Board, depth: u8) -> ChessMove {
     for cmove in &mut movegen {
         board.make_move(cmove, &mut resulting_board);
         // let score = -nega_max(&resulting_board, depth - 1);
-        let score = -alpha_beta_nega(&resulting_board, depth - 1, -20_000, 20_000);
+        let score = -alpha_beta_nega(&resulting_board, depth - 1, -20_000, 20_000, tt);
         //println!("{} {}", cmove, score);
         if score > best_move_score {
             best_move = Some(cmove);
@@ -45,10 +57,17 @@ pub fn find_move(board: &Board, depth: u8) -> ChessMove {
 /// pruning employed, returning an evaluation score for the given board state.
 ///
 /// As a simple sorting of the legal moves, capturing moves are iterated first.
-/// 
+///
 /// See https://www.chessprogramming.org/Alpha-Beta#Negamax_Framework
 ///
-fn alpha_beta_nega(board: &Board, depth: u8, alpha: i32, beta: i32) -> i32 {
+fn alpha_beta_nega(
+    board: &Board,
+    depth: u8,
+    alpha: i32,
+    beta: i32,
+    tt: &mut CacheTable<TranspositionTableEntry>,
+) -> i32 {
+    if let Some(item) = tt.get(board.get_hash()) {}
     if depth == 0 {
         return evaluate_board(&board);
     } else {
@@ -60,7 +79,7 @@ fn alpha_beta_nega(board: &Board, depth: u8, alpha: i32, beta: i32) -> i32 {
         movegen.set_iterator_mask(*targets);
         for cmove in &mut movegen {
             board.make_move(cmove, &mut resulting_board);
-            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha);
+            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha, tt);
             if score >= beta {
                 return beta;
             }
@@ -71,7 +90,7 @@ fn alpha_beta_nega(board: &Board, depth: u8, alpha: i32, beta: i32) -> i32 {
         movegen.set_iterator_mask(!EMPTY);
         for cmove in &mut movegen {
             board.make_move(cmove, &mut resulting_board);
-            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha);
+            let score = -alpha_beta_nega(&resulting_board, depth - 1, -beta, -alpha, tt);
             if score >= beta {
                 return beta;
             }
