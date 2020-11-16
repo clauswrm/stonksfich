@@ -1,24 +1,24 @@
-use chess::{Board, BoardStatus, CacheTable, ChessMove, Color, Square};
-use chess_engine::engines::simple_engine::{find_move, TranspositionTableEntry};
-use chess_engine::util::io::get_move_cli;
-use chess_engine::util::print::print_board;
+use chess::{Board, BoardStatus, /*CacheTable, ChessMove,*/ Color /*Square*/};
+use stonksfich::engines::simple_engine::find_move; //{find_move, TranspositionTableEntry};
+use stonksfich::util::io::get_move_cli;
+use stonksfich::util::print::print_board;
 
 use std::time::Instant;
 
-const DEPTH: u8 = 4;
+const DEPTH: u8 = 6;
 
 fn main() {
     let bot = Color::Black;
     let mut board = Board::default();
-    let mut tt = CacheTable::new(
-        65536,
-        TranspositionTableEntry {
-            score: 0,
-            best_move: ChessMove::new(Square::E7, Square::E5, None),
-            zobrist_key: 0,
-            depth: 0,
-        },
-    );
+    // let mut tt = CacheTable::new(
+    //     65536,
+    //     TranspositionTableEntry {
+    //         score: 0,
+    //         best_move: ChessMove::new(Square::E7, Square::E5, None),
+    //         zobrist_key: 0,
+    //         depth: 0,
+    //     },
+    // );
 
     loop {
         if board.status() != BoardStatus::Ongoing {
@@ -28,7 +28,7 @@ fn main() {
 
         if board.side_to_move() == bot {
             let start = Instant::now();
-            let chosen_move = find_move(&board, DEPTH, &mut tt);
+            let chosen_move = find_move(&board, DEPTH); //, &mut tt);
             let duration = start.elapsed();
             println!("Chosen move: {}\nTime elapsed: {:?}", chosen_move, duration);
             board = board.make_move_new(chosen_move);

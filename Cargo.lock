@@ -63,13 +63,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chess_engine"
-version = "0.1.0"
-dependencies = [
- "chess",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -191,6 +184,13 @@ name = "rustc-demangle"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e3bad0ee36814ca07d7968269dd4b7ec89ec2da10c4bb613928d3077083c232"
+
+[[package]]
+name = "stonksfich"
+version = "0.1.0"
+dependencies = [
+ "chess",
+]
 
 [[package]]
 name = "syn"
