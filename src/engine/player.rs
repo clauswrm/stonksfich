@@ -13,7 +13,7 @@ pub trait Player {
 /// tree.
 ///
 pub struct Bot {
-    depth: u8,
+    pub depth: u8,
 }
 
 impl Player for Bot {
