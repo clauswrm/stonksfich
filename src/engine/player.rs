@@ -21,7 +21,7 @@ impl Player for Bot {
         let start = Instant::now();
         let chosen_move = find_move(board, self.depth);
         let duration = start.elapsed();
-        println!("Chosen move: {}\nTime elapsed: {:?}", chosen_move, duration);
+        println!("Chosen move: {}\nTime elapsed: {:?}\n", chosen_move, duration);
         return chosen_move;
     }
 }

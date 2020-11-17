@@ -12,13 +12,19 @@ pub fn find_move(board: &Board, depth: u8) -> ChessMove {
     for cmove in &mut movegen {
         board.make_move(cmove, &mut resulting_board);
         let score = -alpha_beta_search(&resulting_board, depth - 1, -20_000, 20_000);
-        println!("Move: {}, Score:{}", cmove, score);
+        println!("Move: {}, Score: {}", cmove, score);
         if score > best_move_score {
             best_move = Some(cmove);
             best_move_score = score;
         }
     }
-    return best_move.unwrap();
+    return match best_move {
+        Some(chosen_move) => chosen_move,
+        // If checkmate is inevitable, no move will have been selected
+        None => MoveGen::new_legal(board)
+            .next()
+            .expect("No legal moves for the given board!"),
+    };
 }
 
 /// Recursivley search the move-tree using a min-max strategy (NegaMax) with
