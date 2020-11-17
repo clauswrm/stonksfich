@@ -1,6 +1,9 @@
 use chess::Board;
+use colored::*;
 use std::fmt::Write;
 
+/// Print the board in a simple format using ASCII-symbols only.
+///
 pub fn print_board_ascii(board: &Board) {
     let fen_string = format!("{}", board);
     let mut fen_itr = fen_string.split_whitespace();
@@ -43,6 +46,9 @@ pub fn print_board_ascii(board: &Board) {
     println!("{}", res);
 }
 
+/// Print the board in a rich format using UTF-8 chess characters and colors
+/// specifying the last move.
+///
 pub fn print_board(board: &Board) {
     let fen_string = format!("{}", board);
     let mut fen_itr = fen_string.split_whitespace();
@@ -88,7 +94,11 @@ pub fn print_board(board: &Board) {
                 'p' => "♟",
                 _ => "?",
             };
-            write!(&mut res, " {} ", piece_ch).unwrap();
+            let piece_str = match ch.is_uppercase() {
+                false => piece_ch.blue(),
+                true => piece_ch.normal(),
+            };
+            write!(&mut res, " {} ", piece_str).unwrap();
         }
     }
     write!(
