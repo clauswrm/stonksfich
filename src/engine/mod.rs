@@ -31,5 +31,5 @@ pub fn play_game(
     }
 
     print_board(&game.current_position());
-    println!("Game Over: {:?}", game.result());
+    println!("Game Over: {:?}", game.result().unwrap());
 }
