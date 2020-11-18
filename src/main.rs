@@ -6,5 +6,6 @@ fn main() {
     let white_player = Human {};
     let black_player = Bot { depth: DEPTH };
 
-    play_game(&white_player, &black_player, None)
+    let result = play_game(&white_player, &black_player, None);
+    println!("Game Over: {:?}", result);
 }
