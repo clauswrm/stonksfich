@@ -7,7 +7,7 @@ use std::time::Instant;
 /// A trait representing some entity that can play chess.
 ///
 pub trait Player {
-    fn choose_move(&self, board: &Board) -> ChessMove;
+    fn choose_move(&mut self, board: &Board) -> ChessMove;
 }
 
 /// A player representing an AI, finding it's moves through searching the game
@@ -18,7 +18,7 @@ pub struct Bot {
 }
 
 impl Player for Bot {
-    fn choose_move(&self, board: &Board) -> ChessMove {
+    fn choose_move(&mut self, board: &Board) -> ChessMove {
         let start = Instant::now();
         let chosen_move = find_move(board, self.depth);
         let duration = start.elapsed();
@@ -46,7 +46,7 @@ impl TTBot {
                 tt_size,
                 TTEntry {
                     score: 0,
-                    best_move: None,
+                    // best_move: None,
                     zobrist_key: 0,
                     depth: 0,
                     flag: TTFlag::Exact,
@@ -57,9 +57,9 @@ impl TTBot {
 }
 
 impl Player for TTBot {
-    fn choose_move(&self, board: &Board) -> ChessMove {
+    fn choose_move(&mut self, board: &Board) -> ChessMove {
         let start = Instant::now();
-        let chosen_move = tt_find_move(board, self.depth, &self.tt);
+        let chosen_move = tt_find_move(board, self.depth, &mut self.tt);
         let duration = start.elapsed();
         println!(
             "Chosen move: {}\nTime elapsed: {:?}\n",
@@ -75,7 +75,7 @@ impl Player for TTBot {
 pub struct Human {}
 
 impl Player for Human {
-    fn choose_move(&self, board: &Board) -> ChessMove {
+    fn choose_move(&mut self, board: &Board) -> ChessMove {
         return get_move_cli(board);
     }
 }

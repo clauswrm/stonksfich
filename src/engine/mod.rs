@@ -11,8 +11,8 @@ pub mod search;
 /// starting board. Returns the result of the game.
 ///
 pub fn play_game(
-    white_player: &impl Player,
-    black_player: &impl Player,
+    white_player: &mut impl Player,
+    black_player: &mut impl Player,
     starting_board: Option<Board>,
 ) -> GameResult {
     let mut game = match starting_board {
