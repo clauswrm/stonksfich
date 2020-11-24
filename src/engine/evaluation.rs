@@ -51,7 +51,9 @@ pub mod simple {
     fn positional_evaluation(pieces: BitBoard, piece_square_table: [i32; 64]) -> i32 {
         let mut sum = 0;
         for square in pieces {
-            sum += piece_square_table[square.to_index()];
+            unsafe {
+                sum += piece_square_table.get_unchecked(square.to_index());
+            }
         }
         return sum;
     }
