@@ -1,5 +1,6 @@
 use super::evaluation::simple::evaluate_board;
-use chess::{Board, ChessMove, MoveGen, EMPTY};
+use super::tt::TTEntry;
+use chess::{Board, CacheTable, ChessMove, MoveGen, EMPTY};
 
 /// Root function of Alpha-Beta search algorithm, returning the best move
 /// found after a search with depth=`depth`.
@@ -106,6 +107,91 @@ fn quiescence_search(board: &Board, alpha: i32, beta: i32) -> i32 {
     for cmove in &mut movegen {
         board.make_move(cmove, &mut resulting_board);
         let score = -quiescence_search(&resulting_board, -beta, -new_alpha);
+        if score >= beta {
+            return beta;
+        }
+        if score > new_alpha {
+            new_alpha = score;
+        }
+    }
+    return new_alpha;
+}
+
+pub fn tt_find_move(board: &Board, depth: u8, tt: &CacheTable<TTEntry>) -> ChessMove {
+    let mut movegen = MoveGen::new_legal(board);
+    let mut best_move: Option<ChessMove> = None;
+    let mut best_move_score = -20_000;
+    let mut resulting_board = Board::default();
+    for cmove in &mut movegen {
+        board.make_move(cmove, &mut resulting_board);
+        let score = -tt_alpha_beta_search(&resulting_board, depth - 1, -20_000, 20_000, true, tt);
+        println!("Move: {}, Score: {}", cmove, score);
+        if score > best_move_score {
+            best_move = Some(cmove);
+            best_move_score = score;
+        }
+    }
+    return match best_move {
+        Some(chosen_move) => chosen_move,
+        // If checkmate is inevitable, no move will have been selected
+        None => MoveGen::new_legal(board)
+            .next()
+            .expect("No legal moves for the given board!"),
+    };
+}
+
+fn tt_alpha_beta_search(
+    board: &Board,
+    depth: u8,
+    alpha: i32,
+    beta: i32,
+    can_null: bool,
+    tt: &CacheTable<TTEntry>,
+) -> i32 {
+    if depth == 0 {
+        return quiescence_search(&board, alpha, beta);
+    }
+    if can_null {
+        if let Some(resulting_board) = board.null_move() {
+            let adjusted_depth = match depth < 4 {
+                true => 1,
+                false => depth - 2,
+            };
+            let score = -tt_alpha_beta_search(
+                &resulting_board,
+                adjusted_depth - 1,
+                -beta,
+                -alpha,
+                false,
+                tt,
+            );
+            if score >= beta {
+                return beta;
+            }
+        }
+    }
+    let mut movegen = MoveGen::new_legal(board);
+    let mut new_alpha = alpha;
+    let mut resulting_board = Board::default();
+    let targets = board.color_combined(!board.side_to_move());
+
+    movegen.set_iterator_mask(*targets);
+    for cmove in &mut movegen {
+        board.make_move(cmove, &mut resulting_board);
+        let score =
+            -tt_alpha_beta_search(&resulting_board, depth - 1, -beta, -new_alpha, can_null, tt);
+        if score >= beta {
+            return beta;
+        }
+        if score > new_alpha {
+            new_alpha = score;
+        }
+    }
+    movegen.set_iterator_mask(!EMPTY);
+    for cmove in &mut movegen {
+        board.make_move(cmove, &mut resulting_board);
+        let score =
+            -tt_alpha_beta_search(&resulting_board, depth - 1, -beta, -new_alpha, can_null, tt);
         if score >= beta {
             return beta;
         }

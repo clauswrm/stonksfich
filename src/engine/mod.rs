@@ -3,6 +3,7 @@ use chess::{Board, Color, Game, GameResult};
 use player::Player;
 
 mod evaluation;
+mod tt;
 pub mod player;
 pub mod search;
 
