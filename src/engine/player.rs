@@ -46,7 +46,7 @@ impl TTBot {
                 tt_size,
                 TTEntry {
                     score: 0,
-                    // best_move: None,
+                    best_move: None,
                     zobrist_key: 0,
                     depth: 0,
                     flag: TTFlag::Exact,

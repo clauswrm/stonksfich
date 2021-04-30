@@ -192,6 +192,25 @@ fn tt_alpha_beta_search(
     let mut movegen = MoveGen::new_legal(board);
     let mut resulting_board = Board::default();
     let targets = board.color_combined(!board.side_to_move());
+    if let Some(entry) = tt.get(hash) {
+        if let Some(best_move) = entry.best_move {
+            board.make_move(best_move, &mut resulting_board);
+            let score = -tt_alpha_beta_search(
+                &resulting_board,
+                depth - 1,
+                -new_beta,
+                -new_alpha,
+                can_null,
+                tt,
+            );
+            if score >= new_beta {
+                return new_beta;
+            }
+            if score > new_alpha {
+                new_alpha = score;
+            }
+        }
+    }
 
     movegen.set_iterator_mask(*targets);
     for cmove in &mut movegen {
@@ -205,9 +224,29 @@ fn tt_alpha_beta_search(
             tt,
         );
         if score >= new_beta {
+            tt.add(
+                hash,
+                TTEntry {
+                    zobrist_key: hash,
+                    depth: depth,
+                    best_move: Some(cmove),
+                    score: new_beta,
+                    flag: TTFlag::LowerBound,
+                },
+            );
             return new_beta;
         }
         if score > new_alpha {
+            tt.add(
+                hash,
+                TTEntry {
+                    zobrist_key: hash,
+                    depth: depth,
+                    best_move: Some(cmove),
+                    score: score,
+                    flag: TTFlag::UpperBound,
+                },
+            );
             new_alpha = score;
         }
     }
@@ -223,9 +262,29 @@ fn tt_alpha_beta_search(
             tt,
         );
         if score >= new_beta {
+            tt.add(
+                hash,
+                TTEntry {
+                    zobrist_key: hash,
+                    depth: depth,
+                    best_move: Some(cmove),
+                    score: new_beta,
+                    flag: TTFlag::LowerBound,
+                },
+            );
             return new_beta;
         }
         if score > new_alpha {
+            tt.add(
+                hash,
+                TTEntry {
+                    zobrist_key: hash,
+                    depth: depth,
+                    best_move: Some(cmove),
+                    score: score,
+                    flag: TTFlag::UpperBound,
+                },
+            );
             new_alpha = score;
         }
     }
@@ -239,11 +298,12 @@ fn tt_alpha_beta_search(
         flag = TTFlag::Exact;
     };
 
-    (*tt).add(
+    tt.add(
         hash,
         TTEntry {
             zobrist_key: hash,
             depth: depth,
+            best_move: None,
             score: new_alpha,
             flag: flag,
         },
