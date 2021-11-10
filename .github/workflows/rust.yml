@@ -2,13 +2,15 @@ name: Rust CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
     paths-ignore:
-      - '**.md'
+      - "**.md"
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 env:
   CARGO_TERM_COLOR: always
@@ -20,20 +22,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
 
-    - name: Cache dependencies
-      uses: Swatinem/rust-cache@v1
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v1
 
-    - name: Build
-      run: cargo build --verbose
+      - name: Build
+        run: cargo build --verbose
 
-    - name: Run tests
-      run: cargo test --verbose
+      - name: Run tests
+        run: cargo test --verbose
