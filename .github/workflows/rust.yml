@@ -10,7 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  pipeline:
+    name: Pipeline
 
     runs-on: ubuntu-latest
 
