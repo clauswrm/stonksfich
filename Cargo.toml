@@ -12,3 +12,6 @@ opt-level = 3
 [dependencies]
 chess = "3.2.0"
 colored = "2.0.0"
+licheszter = "0.1.0"
+tokio = { version = "1.21.2", features = ["full"] }
+tokio-stream = "0.1.11"

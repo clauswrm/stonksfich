@@ -1,7 +1,7 @@
 use super::super::util::io::get_move_cli;
 use super::search::find_move;
 use chess::{Board, ChessMove};
-use std::time::Instant;
+// use std::time::Instant;
 
 /// A trait representing some entity that can play chess.
 ///
@@ -18,10 +18,10 @@ pub struct Bot {
 
 impl Player for Bot {
     fn choose_move(&self, board: &Board) -> ChessMove {
-        let start = Instant::now();
+        // let start = Instant::now();
         let chosen_move = find_move(board, self.depth);
-        let duration = start.elapsed();
-        println!("Chosen move: {}\nTime elapsed: {:?}\n", chosen_move, duration);
+        // let duration = start.elapsed();
+        // println!("Chosen move: {}\nTime elapsed: {:?}\n", chosen_move, duration);
         return chosen_move;
     }
 }
