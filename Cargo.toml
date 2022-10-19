@@ -12,6 +12,7 @@ opt-level = 3
 [dependencies]
 chess = "3.2.0"
 colored = "2.0.0"
+dotenv = "0.15.0"
 env_logger = "0.9.1"
 licheszter = "0.1.0"
 log = "0.4.17"

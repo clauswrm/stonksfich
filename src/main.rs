@@ -1,4 +1,5 @@
 use chess::{ChessMove, Color, Game};
+use dotenv::dotenv;
 use licheszter::{
     client::Licheszter,
     models::board::{BoardState, Challenger, Event},
@@ -11,10 +12,13 @@ use tokio_stream::StreamExt;
 #[tokio::main]
 async fn main() {
     env_logger::init();
+    dotenv().ok();
+
     const DEPTH: u8 = 5;
     let bot_player = Bot { depth: DEPTH };
 
-    let client = Licheszter::new(String::from("lip_PV83SUBeitbrybhXD57C"));
+    let client =
+        Licheszter::new(std::env::var("RUST_BOT_TOKEN").expect("RUST_BOT_TOKEN must be set."));
     let mut stream = client
         .stream_events()
         .await
