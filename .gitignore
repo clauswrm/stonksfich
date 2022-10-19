@@ -3,3 +3,9 @@
 
 # Logs
 *.log
+
+#Environment variables
+.env
+
+#Other
+.DS_Store

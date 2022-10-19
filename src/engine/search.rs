@@ -12,7 +12,7 @@ pub fn find_move(board: &Board, depth: u8) -> ChessMove {
     for cmove in &mut movegen {
         board.make_move(cmove, &mut resulting_board);
         let score = -alpha_beta_search(&resulting_board, depth - 1, -20_000, 20_000, true);
-        println!("Move: {}, Score: {}", cmove, score);
+        // println!("Move: {}, Score: {}", cmove, score);
         if score > best_move_score {
             best_move = Some(cmove);
             best_move_score = score;

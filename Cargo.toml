@@ -1,10 +1,8 @@
 [package]
-name = "stonksfich"
-version = "0.1.0"
+name = "stonksfish"
+version = "0.2.0"
 authors = ["Claus Martinsen <clauswrm@gmail.com>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2021"
 
 [profile.dev]
 opt-level = 3
@@ -12,3 +10,9 @@ opt-level = 3
 [dependencies]
 chess = "3.2.0"
 colored = "2.0.0"
+dotenv = "0.15.0"
+env_logger = "0.9.1"
+licheszter = "0.1.0"
+log = "0.4.17"
+tokio = { version = "1.21.2", features = ["full"] }
+tokio-stream = "0.1.11"
