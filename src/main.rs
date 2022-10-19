@@ -3,12 +3,14 @@ use licheszter::{
     client::Licheszter,
     models::board::{BoardState, Challenger, Event},
 };
+use log::{debug, info, warn};
 use std::str::FromStr;
 use stonksfich::engine::player::{Bot, Player};
 use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     const DEPTH: u8 = 5;
     let bot_player = Bot { depth: DEPTH };
 
@@ -19,8 +21,7 @@ async fn main() {
         .expect("Error while streaming events.");
     let mut opponent_name = String::from("");
     let mut bot_color = Color::Black;
-
-    println!("Starting...");
+    info!("Starting...");
     while let Ok(Some(event)) = stream.try_next().await {
         match event {
             Event::Challenge {
@@ -29,7 +30,7 @@ async fn main() {
             } => {
                 if let Some(user) = challenge.challenger {
                     opponent_name = user.username;
-                    println!(
+                    info!(
                         "[{}] Challenge recieved. Time control: {}.",
                         challenge.id,
                         challenge.time_control.show.unwrap_or(String::from("n/a"))
@@ -58,7 +59,7 @@ async fn main() {
                                 }
                                 _ => Color::Black,
                             };
-                            println!("[{}] Game started. Bot plays {:?}.", game_id.id, bot_color);
+                            info!("[{}] Game started. Bot plays {:?}.", game_id.id, bot_color);
                             if bot_color == Color::White {
                                 let board = game.current_position();
                                 let chosen_move = bot_player.choose_move(&board);
@@ -76,7 +77,7 @@ async fn main() {
                                     .rsplitn(2, " ")
                                     .next()
                                     .expect("Move string should contain a substring when splitting by space.");
-                                println!("[{}] Move made: {}", game_id.id, last_move);
+                                debug!("[{}] Move made: {}", game_id.id, last_move);
                                 if let Ok(chess_move) = ChessMove::from_str(last_move) {
                                     let move_result = game.make_move(chess_move);
                                     if move_result {
@@ -90,26 +91,26 @@ async fn main() {
                                                 .expect("Error when making move.");
                                         }
                                     } else {
-                                        println!(
+                                        warn!(
                                             "[{}] Move could not be made: '{}'.",
                                             game_id.id, last_move
                                         );
                                     }
                                 } else {
-                                    println!(
+                                    warn!(
                                         "[{}] Illegal move recieved: '{}'.",
                                         game_id.id, last_move
                                     );
                                 }
                             } else {
-                                println!(
+                                info!(
                                     "[{}] Game ended with status {}.",
                                     game_id.id, game_state.status
                                 );
                             }
                         }
                         game_state => {
-                            println!(
+                            debug!(
                                 "[{}] Other game state recieved: {:?}",
                                 game_id.id, game_state
                             );
@@ -118,17 +119,17 @@ async fn main() {
                 }
             }
             Event::GameFinish { game: game_id } => {
-                println!("[{}] Finished.", game_id.id);
+                debug!("[{}] Finished.", game_id.id);
                 break;
             }
             Event::ChallengeCanceled { challenge } => {
-                println!("[{}] Cancelled.", challenge.id);
+                debug!("[{}] Cancelled.", challenge.id);
                 break;
             }
             event => {
-                println!("Other event recieved: {:?}", event);
+                debug!("Other event recieved: {:?}", event);
             }
         }
     }
-    println!("Shutting down...");
+    info!("Shutting down...");
 }
