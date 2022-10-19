@@ -1140,7 +1140,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "stonksfich"
+name = "stonksfish"
 version = "0.2.0"
 dependencies = [
  "chess",

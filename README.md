@@ -1,10 +1,10 @@
-# Stonksfich
+# Stonksfish
 
-A fast chess bot playable on Lichess written in Rust.
+A fast and simple chess bot written in Rust.
 
-[![Rust CI](https://github.com/clauswrm/stonksfich/actions/workflows/rust.yml/badge.svg)](https://github.com/clauswrm/stonksfich/actions/workflows/rust.yml)
+Play me on [Lichess](https://lichess.org/@/stonks_fish).
 
-![Image of fich with stonks](https://i.imgflip.com/3zkg5p.jpg)
+[![Rust CI](https://github.com/clauswrm/stonksfish/actions/workflows/rust.yml/badge.svg)](https://github.com/clauswrm/stonksfish/actions/workflows/rust.yml)
 
 ## How to run
 
@@ -20,24 +20,24 @@ The bot listens for events from Lichess and responds accordingly.
 
 ```mermaid
 sequenceDiagram
-    participant Stonksfich
+    participant Stonksfish
     participant Lichess
     actor Opponent
-    Stonksfich->>Lichess: Listen for events
+    Stonksfish->>Lichess: Listen for events
     loop Running
         Opponent->>Lichess: Create challenge
-        Lichess-->>Stonksfich: New challenge
-        Stonksfich->>Lichess: Accept challenge
-        Lichess-->>Stonksfich: Game started
+        Lichess-->>Stonksfish: New challenge
+        Stonksfish->>Lichess: Accept challenge
+        Lichess-->>Stonksfish: Game started
         rect rgb(130, 75, 20)
             loop Playing game
                 Opponent->>Lichess: Make move
-                Lichess-->>Stonksfich: Updated game state
-                Stonksfich->>Lichess: Make move
-                Lichess-->>Stonksfich: Updated game state
-                Note right of Lichess: Assuming opponent is playing <br> White. If not, Stonksfich <br> makes the first move.
+                Lichess-->>Stonksfish: Updated game state
+                Stonksfish->>Lichess: Make move
+                Lichess-->>Stonksfish: Updated game state
+                Note right of Lichess: Assuming opponent is playing <br> White. If not, Stonksfish <br> makes the first move.
             end
         end
-        Lichess-->>Stonksfich: Game over
+        Lichess-->>Stonksfish: Game over
     end
 ```

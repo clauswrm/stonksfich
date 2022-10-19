@@ -6,7 +6,7 @@ use licheszter::{
 };
 use log::{debug, info, warn};
 use std::str::FromStr;
-use stonksfich::engine::player::{Bot, Player};
+use stonksfish::engine::player::{Bot, Player};
 use tokio_stream::StreamExt;
 
 #[tokio::main]

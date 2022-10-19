@@ -1,10 +1,8 @@
 [package]
-name = "stonksfich"
+name = "stonksfish"
 version = "0.2.0"
 authors = ["Claus Martinsen <clauswrm@gmail.com>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.dev]
 opt-level = 3
