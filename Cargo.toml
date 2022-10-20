@@ -7,6 +7,9 @@ edition = "2021"
 [profile.dev]
 opt-level = 3
 
+[profile.release]
+opt-level = 3
+
 [dependencies]
 chess = "3.2.0"
 colored = "2.0.0"

@@ -8,7 +8,7 @@ Play me on [Lichess](https://lichess.org/@/stonks_fish).
 
 ## How to run
 
-`RUSTFLAGS="-C target-cpu=native" cargo run`
+`RUSTFLAGS="-C target-cpu=native" cargo run --release`
 
 ## Dependencies
 
