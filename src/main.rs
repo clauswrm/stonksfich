@@ -11,8 +11,8 @@ use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
     dotenv().ok();
+    env_logger::init();
 
     const DEPTH: u8 = 5;
     let bot_player = Bot { depth: DEPTH };
